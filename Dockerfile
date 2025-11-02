@@ -1,7 +1,7 @@
 # ETAPA 1: Construcción (Generar el .jar con Maven)
 FROM maven:3-openjdk-17 AS build
 # Establece el directorio de trabajo dentro del contenedor
-WORKDIR /app
+WORKDIR app/
 # Copia el archivo pom.xml para descargar dependencias
 COPY pom.xml .
 # Descarga las dependencias

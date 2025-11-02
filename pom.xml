@@ -7,9 +7,12 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.2.0</version> <relativePath/> </parent>
+        <version>3.2.0</version>
+        <relativePath/>
+    </parent>
 
-    <groupId>app.backend</groupId> <artifactId>biblioteca-api</artifactId>
+    <groupId>app.backend</groupId>
+    <artifactId>biblioteca-api</artifactId>
     <version>0.0.1-SNAPSHOT</version>
 
     <properties>
@@ -17,7 +20,6 @@
     </properties>
 
     <dependencies>
-
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
@@ -26,16 +28,20 @@
         <dependency>
             <groupId>com.microsoft.sqlserver</groupId>
             <artifactId>mssql-jdbc</artifactId>
-            <version>12.6.1.jre11</version> </dependency>
+            <version>12.6.1.jre11</version>
+        </dependency>
 
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-core</artifactId>
         </dependency>
+
         <dependency>
             <groupId>com.google.zxing</groupId>
             <artifactId>core</artifactId>
-            <version>3.5.3</version> </dependency>
+            <version>3.5.3</version>
+        </dependency>
+
         <dependency>
             <groupId>com.google.zxing</groupId>
             <artifactId>javase</artifactId>
@@ -53,6 +59,12 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+
+        <!-- Moví esta dependencia aquí desde fuera de <build> -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-jdbc</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -63,10 +75,5 @@
             </plugin>
         </plugins>
     </build>
-
-    <dependency>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-jdbc</artifactId>
-    </dependency>
 
 </project>
