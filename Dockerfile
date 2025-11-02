@@ -1,5 +1,5 @@
 # ETAPA 1: Construcción (Generar el .jar con Maven)
-FROM maven:3-openjdk-21 AS build
+FROM maven:3.9.9-eclipse-temurin-21 AS build
 # Establece el directorio de trabajo dentro del contenedor
 WORKDIR /app
 # Copia el archivo pom.xml para descargar dependencias
@@ -13,7 +13,7 @@ RUN mvn package -DskipTests
 
 # ETAPA 2: Ejecución (Usar el JAR generado)
 # Usamos una imagen base más ligera (solo Java Runtime)
-FROM openjdk:21-jdk-slim
+FROM eclipse-temurin:21-jre  # Cambiado para consistencia y ligereza
 # Expone el puerto por defecto de Spring Boot
 EXPOSE 8080
 # Copia el JAR generado de la etapa de construcción
