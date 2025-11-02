@@ -1,7 +1,7 @@
 # ETAPA 1: Construcción (Generar el .jar con Maven)
-FROM maven:3-openjdk-17 AS build
+FROM maven:3-openjdk-21 AS build
 # Establece el directorio de trabajo dentro del contenedor
-WORKDIR app/
+WORKDIR /app
 # Copia el archivo pom.xml para descargar dependencias
 COPY pom.xml .
 # Descarga las dependencias
@@ -13,7 +13,7 @@ RUN mvn package -DskipTests
 
 # ETAPA 2: Ejecución (Usar el JAR generado)
 # Usamos una imagen base más ligera (solo Java Runtime)
-FROM openjdk:17-jdk-slim
+FROM openjdk:21-jdk-slim
 # Expone el puerto por defecto de Spring Boot
 EXPOSE 8080
 # Copia el JAR generado de la etapa de construcción
