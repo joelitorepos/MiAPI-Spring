@@ -30,7 +30,8 @@
         <dependency>
             <groupId>com.microsoft.sqlserver</groupId>
             <artifactId>mssql-jdbc</artifactId>
-            <version>12.8.2.jre21</version>  <!-- Actualizado a versión existente y compatible con Java 21 -->
+            <version>12.8.2</version>
+            <classifier>jre11</classifier>
         </dependency>
 
         <dependency>
