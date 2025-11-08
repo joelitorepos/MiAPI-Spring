@@ -1,6 +1,5 @@
 package app.dao;
 
-import app.db.DatabaseConnection;
 import app.model.CajaMovimiento;
 
 import java.math.BigDecimal;
@@ -133,8 +132,8 @@ public class CajaMovimientoDAO {
         // Se usa CAST(? AS DATE) para asegurar la comparación solo por la parte de la fecha.
         final String SQL = "SELECT * FROM CajaMovimiento WHERE CAST(fecha AS DATE) = CAST(? AS DATE) ORDER BY fecha DESC";
 
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(SQL)) {
+        try (Connection con = dataSource.getConnection();
+             PreparedStatement stmt = con.prepareStatement(SQL)) {
 
             // Convertir LocalDateTime a Timestamp para el PreparedStatement
             Timestamp sqlDate = Timestamp.valueOf(fecha);
@@ -165,8 +164,8 @@ public class CajaMovimientoDAO {
             WHERE CAST(fecha AS DATE) = CAST(? AS DATE)
             """;
 
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(SQL)) {
+        try (Connection con = dataSource.getConnection();
+             PreparedStatement stmt = con.prepareStatement(SQL)) {
 
             // Se necesita la fecha en formato Timestamp para la DB
             Timestamp sqlDate = Timestamp.valueOf(fecha);

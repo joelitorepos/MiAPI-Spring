@@ -206,8 +206,8 @@ public class PrestamoDAO {
         // La tabla Prestamo tiene columnas fecha_vencimiento (DATETIME) y estado (NVARCHAR).
         final String SQL = "SELECT * FROM Prestamo WHERE fecha_vencimiento < GETDATE() AND estado = 'Activo' AND estado != 'Devuelto'";
 
-        try (Connection conn = DatabaseConnection.getConnection(); // Obtener la conexión
-             PreparedStatement stmt = conn.prepareStatement(SQL);
+        try (Connection con = dataSource.getConnection(); // Obtener la conexión
+             PreparedStatement stmt = con.prepareStatement(SQL);
              ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) {

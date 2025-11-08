@@ -1,6 +1,5 @@
 package app.dao;
 
-import app.db.DatabaseConnection;
 import app.model.InventarioMovimiento;
 
 import java.sql.*;
