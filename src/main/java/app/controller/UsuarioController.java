@@ -56,7 +56,7 @@ public class UsuarioController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(-1);
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(-1);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(-2);
         }
     }
 
