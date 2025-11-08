@@ -1,10 +1,10 @@
 package app.dao;
 
 import app.core.PasswordUtil;
-import app.db.DatabaseConnection;
 import app.model.Usuario;
 import app.model.UsuarioConRol;
 
+import javax.sql.DataSource;
 import java.sql.*;
 import java.time.LocalDateTime; // Necesario para el modelo Usuario
 import java.util.ArrayList;
@@ -13,6 +13,11 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public class UsuarioDAO {
+    private final DataSource dataSource;
+
+    public UsuarioDAO(DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
 
     // --- Helper: Mapea un ResultSet a un objeto Usuario (incluyendo fechas)
     private Usuario mapUsuario(ResultSet rs) throws SQLException {
@@ -37,8 +42,8 @@ public class UsuarioDAO {
     public Usuario findByUsername(String username) throws SQLException {
         String sql = "SELECT id, username, nombre, password, idRol, estado, created_at, updated_at FROM Usuario WHERE username = ?";
 
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try (Connection con = dataSource.getConnection();
+             PreparedStatement stmt = con.prepareStatement(sql)) {
 
             stmt.setString(1, username);
 
@@ -60,7 +65,7 @@ public class UsuarioDAO {
         String sql = "INSERT INTO Usuario (username, password, nombre, idRol, estado) VALUES (?,?,?,?,1)";
         String hash = PasswordUtil.hash(plainPassword);
 
-        try (Connection con = DatabaseConnection.getConnection();
+        try (Connection con = dataSource.getConnection();
              PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, username);
             ps.setString(2, hash);
@@ -84,7 +89,7 @@ public class UsuarioDAO {
                 """;
         List<UsuarioConRol> lista = new ArrayList<>();
 
-        try (Connection con = DatabaseConnection.getConnection();
+        try (Connection con = dataSource.getConnection();
              PreparedStatement ps = con.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
 
@@ -106,7 +111,7 @@ public class UsuarioDAO {
     public Usuario buscarPorId(int id) throws SQLException {
         // Se añade 'created_at, updated_at' y se hace un alias: '' as password para poder reutilizar mapUsuario.
         String sql = "SELECT id, username, nombre, idRol, estado, created_at, updated_at, '' as password FROM Usuario WHERE id = ?";
-        try (Connection con = DatabaseConnection.getConnection();
+        try (Connection con = dataSource.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setInt(1, id);
@@ -128,7 +133,7 @@ public class UsuarioDAO {
         }
         sql.append(" WHERE id = ?");
 
-        try (Connection con = DatabaseConnection.getConnection();
+        try (Connection con = dataSource.getConnection();
              PreparedStatement ps = con.prepareStatement(sql.toString())) {
 
             ps.setString(1, u.getNombre());
@@ -168,7 +173,7 @@ public class UsuarioDAO {
     public int eliminarUsuario(String username) throws SQLException {
         String sql = "DELETE FROM Usuario WHERE username = ?"; // Eliminación física
 
-        try (Connection con = DatabaseConnection.getConnection();
+        try (Connection con = dataSource.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, username);
             return ps.executeUpdate();
@@ -182,7 +187,7 @@ public class UsuarioDAO {
                 "FROM Usuario ORDER BY id DESC";
         List<Usuario> lista = new ArrayList<>();
 
-        try (Connection con = DatabaseConnection.getConnection();
+        try (Connection con = dataSource.getConnection();
              PreparedStatement ps = con.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
 

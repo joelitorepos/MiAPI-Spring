@@ -3,6 +3,7 @@ package app.dao;
 import app.db.DatabaseConnection;
 import app.model.Rol;
 
+import javax.sql.DataSource;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -10,13 +11,18 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public class RolDAO {
+    private final DataSource dataSource;
+
+    public RolDAO(DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
 
     // Obtener todos los roles activos
     public List<Rol> listar() throws SQLException {
         String sql = "SELECT id, nombre, descripcion, estado FROM Rol WHERE estado = 1 ORDER BY id";
         List<Rol> lista = new ArrayList<>();
 
-        try (Connection con = DatabaseConnection.getConnection();
+        try (Connection con = dataSource.getConnection();
              PreparedStatement ps = con.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
 
@@ -35,7 +41,7 @@ public class RolDAO {
     public int insertar(Rol rol) throws SQLException {
         String sql = "INSERT INTO Rol (nombre, descripcion, estado) VALUES (?, ?, ?)";
 
-        try (Connection con = DatabaseConnection.getConnection();
+        try (Connection con = dataSource.getConnection();
              PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             ps.setString(1, rol.getNombre());
