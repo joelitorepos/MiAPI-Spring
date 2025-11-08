@@ -150,8 +150,8 @@ public class MultaDAO {
         // Asumo que la columna de monto es 'monto' y el estado de pago es 'estadoPago' en la tabla Multa.
         final String SQL = "SELECT SUM(monto) AS total_pendiente FROM Multa WHERE idCliente = ? AND estadoPago = 'Pendiente'";
 
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(SQL)) {
+        try (Connection con = dataSource.getConnection();
+             PreparedStatement stmt = con.prepareStatement(SQL)) {
 
             stmt.setInt(1, idCliente);
 
