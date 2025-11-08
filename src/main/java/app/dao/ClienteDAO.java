@@ -1,6 +1,5 @@
 package app.dao;
 
-import app.db.DatabaseConnection;
 import app.model.Cliente;
 import app.model.ClienteConMultas;
 
@@ -11,13 +10,20 @@ import java.util.List;
 import java.math.BigDecimal;
 import org.springframework.stereotype.Repository;
 
+import javax.sql.DataSource;
+
 @Repository
 public class ClienteDAO {
+    private final DataSource dataSource;
+
+    public ClienteDAO(DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
 
     // INSERT: crea un cliente y devuelve el id generado
     public int insertar(Cliente c) throws SQLException {
         String sql = "INSERT INTO Cliente (nombre, nit, telefono, email, direccion, historial, estado) VALUES (?, ?, ?, ?, ?, ?, ?)";
-        try (Connection con = DatabaseConnection.getConnection();
+        try (Connection con = dataSource.getConnection();
              PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             ps.setString(1, c.getNombre());
@@ -46,7 +52,7 @@ public class ClienteDAO {
         String sql = "SELECT id, nombre, nit, telefono, email, direccion, fecha_registro, estado, historial, created_at, updated_at FROM Cliente ORDER BY id DESC";
         List<Cliente> lista = new ArrayList<>();
 
-        try (Connection con = DatabaseConnection.getConnection();
+        try (Connection con = dataSource.getConnection();
              PreparedStatement ps = con.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
 
@@ -60,7 +66,7 @@ public class ClienteDAO {
     // SELECT WHERE id = ?
     public Cliente buscarPorId(int id) throws SQLException {
         String sql = "SELECT id, nombre, nit, telefono, email, direccion, fecha_registro, estado, historial, created_at, updated_at FROM Cliente WHERE id = ?";
-        try (Connection con = DatabaseConnection.getConnection();
+        try (Connection con = dataSource.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setInt(1, id);
@@ -77,7 +83,7 @@ public class ClienteDAO {
     // UPDATE: devuelve true si actualizó al menos 1 fila
     public boolean actualizar(Cliente c) throws SQLException {
         String sql = "UPDATE Cliente SET nombre = ?, nit = ?, telefono = ?, email = ?, direccion = ?, historial = ?, estado = ?, updated_at = GETDATE() WHERE id = ?";
-        try (Connection con = DatabaseConnection.getConnection();
+        try (Connection con = dataSource.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setString(1, c.getNombre());
@@ -128,7 +134,7 @@ public class ClienteDAO {
             ORDER BY totalAdeudado DESC;
         """;
 
-        try (Connection con = DatabaseConnection.getConnection();
+        try (Connection con = dataSource.getConnection();
              PreparedStatement ps = con.prepareStatement(SQL);
              ResultSet rs = ps.executeQuery()) {
 

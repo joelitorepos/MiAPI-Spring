@@ -1,6 +1,5 @@
 package app.dao;
 
-import app.db.DatabaseConnection;
 import app.model.Parametro;
 
 import java.sql.*;
@@ -9,8 +8,15 @@ import java.util.Date;
 import java.util.List;
 import org.springframework.stereotype.Repository;
 
+import javax.sql.DataSource;
+
 @Repository
 public class ParametroDAO {
+    private final DataSource dataSource;
+
+    public ParametroDAO(DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
 
     // INSERT: crea un parámetro y devuelve el id generado
     public int insertar(Parametro p) throws SQLException {
@@ -19,7 +25,7 @@ public class ParametroDAO {
             INSERT INTO Parametro (clave, valor, descripcion) 
             VALUES (?, ?, ?)
             """;
-        try (Connection con = DatabaseConnection.getConnection();
+        try (Connection con = dataSource.getConnection();
              PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             ps.setString(1, p.getClave());
@@ -48,7 +54,7 @@ public class ParametroDAO {
             """;
         List<Parametro> lista = new ArrayList<>();
 
-        try (Connection con = DatabaseConnection.getConnection();
+        try (Connection con = dataSource.getConnection();
              PreparedStatement ps = con.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
 
@@ -65,7 +71,7 @@ public class ParametroDAO {
             SELECT id, clave, valor, descripcion, created_at, updated_at 
             FROM Parametro WHERE id = ?
             """;
-        try (Connection con = DatabaseConnection.getConnection();
+        try (Connection con = dataSource.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setInt(1, id);
@@ -85,7 +91,7 @@ public class ParametroDAO {
             SELECT id, clave, valor, descripcion, created_at, updated_at 
             FROM Parametro WHERE clave = ?
             """;
-        try (Connection con = DatabaseConnection.getConnection();
+        try (Connection con = dataSource.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setString(1, clave);
@@ -112,7 +118,7 @@ public class ParametroDAO {
             SET clave = ?, valor = ?, descripcion = ?, updated_at = GETDATE() 
             WHERE id = ?
             """;
-        try (Connection con = DatabaseConnection.getConnection();
+        try (Connection con = dataSource.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setString(1, p.getClave());

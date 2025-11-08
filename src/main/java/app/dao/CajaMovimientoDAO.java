@@ -10,14 +10,21 @@ import java.util.ArrayList;
 import java.util.List;
 import org.springframework.stereotype.Repository;
 
+import javax.sql.DataSource;
+
 @Repository
 public class CajaMovimientoDAO {
+    private final DataSource dataSource;
+
+    public CajaMovimientoDAO(DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
 
     // INSERT: crea un movimiento y devuelve el id generado. La fecha se genera en DB si no se provee.
     public int insertar(CajaMovimiento m) throws SQLException {
         String sql = "INSERT INTO CajaMovimiento (idUsuario, tipo, concepto, monto, fecha, referencia, observaciones) " +
                 "VALUES (?, ?, ?, ?, ?, ?, ?)";
-        try (Connection con = DatabaseConnection.getConnection();
+        try (Connection con = dataSource.getConnection();
              PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             ps.setInt(1, m.getIdUsuario());
@@ -49,7 +56,7 @@ public class CajaMovimientoDAO {
     public boolean actualizar(CajaMovimiento m) throws SQLException {
         String sql = "UPDATE CajaMovimiento SET idUsuario = ?, tipo = ?, concepto = ?, monto = ?, fecha = ?, " +
                 "referencia = ?, observaciones = ?, updated_at = GETDATE() WHERE id = ?";
-        try (Connection con = DatabaseConnection.getConnection();
+        try (Connection con = dataSource.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setInt(1, m.getIdUsuario());
@@ -75,7 +82,7 @@ public class CajaMovimientoDAO {
                 "FROM CajaMovimiento ORDER BY id DESC";
         List<CajaMovimiento> lista = new ArrayList<>();
 
-        try (Connection con = DatabaseConnection.getConnection();
+        try (Connection con = dataSource.getConnection();
              PreparedStatement ps = con.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
 
@@ -90,7 +97,7 @@ public class CajaMovimientoDAO {
     public CajaMovimiento buscarPorId(int id) throws SQLException {
         String sql = "SELECT id, idUsuario, tipo, concepto, monto, fecha, referencia, observaciones, created_at, updated_at " +
                 "FROM CajaMovimiento WHERE id = ?";
-        try (Connection con = DatabaseConnection.getConnection();
+        try (Connection con = dataSource.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setInt(1, id);

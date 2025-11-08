@@ -1,7 +1,6 @@
 package app.dao;
 
 import app.core.BarCodeManager;
-import app.db.DatabaseConnection;
 import app.model.CopiaLibro;
 import app.model.CopiaLibroConLibro;
 import app.model.CopiaLibroConDetalles;
@@ -12,8 +11,16 @@ import java.util.List;
 import java.util.Date;
 import org.springframework.stereotype.Repository;
 
+import javax.sql.DataSource;
+
 @Repository
 public class CopiaLibroDAO {
+    private final DataSource dataSource;
+
+    public CopiaLibroDAO(DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
+
     public List<CopiaLibro> listarPorLibro(int idLibro) throws SQLException {
         String sql = """
         SELECT id, idLibro, codInventario, ubicacion, sala, estante, nivel, estadoCopia, estado, createdAt, updatedAt 
@@ -24,7 +31,7 @@ public class CopiaLibroDAO {
 
         List<CopiaLibro> lista = new ArrayList<>();
 
-        try (Connection con = DatabaseConnection.getConnection();
+        try (Connection con = dataSource.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setInt(1, idLibro);
@@ -48,7 +55,7 @@ public class CopiaLibroDAO {
 
         List<CopiaLibro> lista = new ArrayList<>();
 
-        try (Connection con = DatabaseConnection.getConnection();
+        try (Connection con = dataSource.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setInt(1, idLibro);
@@ -69,7 +76,7 @@ public class CopiaLibroDAO {
         WHERE id = ? AND estado = 1 AND estadoCopia = 'Disponible'
         """;
 
-        try (Connection con = DatabaseConnection.getConnection();
+        try (Connection con = dataSource.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setInt(1, idCopiaLibro);
@@ -93,7 +100,7 @@ public class CopiaLibroDAO {
             INSERT INTO CopiaLibro (idLibro, codInventario, ubicacion, sala, estante, nivel, estadoCopia, estado) 
             VALUES (?, ?, ?, ?, ?, ?, ?, ?)
             """;
-        try (Connection con = DatabaseConnection.getConnection();
+        try (Connection con = dataSource.getConnection();
              PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             ps.setInt(1, c.getIdLibro());
@@ -128,7 +135,7 @@ public class CopiaLibroDAO {
             """;
         List<CopiaLibro> lista = new ArrayList<>();
 
-        try (Connection con = DatabaseConnection.getConnection();
+        try (Connection con = dataSource.getConnection();
              PreparedStatement ps = con.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
 
@@ -146,7 +153,7 @@ public class CopiaLibroDAO {
                    createdAt, updatedAt 
             FROM CopiaLibro WHERE id = ?
             """;
-        try (Connection con = DatabaseConnection.getConnection();
+        try (Connection con = dataSource.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setInt(1, id);
@@ -168,7 +175,7 @@ public class CopiaLibroDAO {
                 estadoCopia = ?, estado = ?, updatedAt = NOW() 
             WHERE id = ?
             """;
-        try (Connection con = DatabaseConnection.getConnection();
+        try (Connection con = dataSource.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setInt(1, c.getIdLibro());
@@ -200,7 +207,7 @@ public class CopiaLibroDAO {
 
         List<CopiaLibroConLibro> lista = new ArrayList<>();
 
-        try (Connection con = DatabaseConnection.getConnection();
+        try (Connection con = dataSource.getConnection();
              PreparedStatement ps = con.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
 
@@ -254,7 +261,7 @@ public class CopiaLibroDAO {
             ORDER BY cp.sala, cp.estante, l.nombre ASC
         """;
 
-        try (Connection con = DatabaseConnection.getConnection();
+        try (Connection con = dataSource.getConnection();
              PreparedStatement ps = con.prepareStatement(SQL);
              ResultSet rs = ps.executeQuery()) {
 

@@ -1,6 +1,5 @@
 package app.dao;
 
-import app.db.DatabaseConnection;
 import app.model.Libro;
 import app.model.LibroConAutor;
 import app.model.LibroConAutorYCategoria;
@@ -12,13 +11,21 @@ import java.util.ArrayList;
 import java.util.List;
 import org.springframework.stereotype.Repository;
 
+import javax.sql.DataSource;
+
 @Repository
 public class LibroDAO {
+    private final DataSource dataSource;
+
+    public LibroDAO(DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
+
     public List<Libro> listar() throws SQLException {
         String sql = "SELECT id, nombre, isbn, idAutor, idCategoria, estado, created_at, updated_at FROM Libro ORDER BY id DESC";
         List<Libro> lista = new ArrayList<>();
 
-        try (Connection con = DatabaseConnection.getConnection();
+        try (Connection con = dataSource.getConnection();
              PreparedStatement ps = con.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
 
@@ -34,7 +41,7 @@ public class LibroDAO {
     public int insertar(Libro l) throws SQLException {
         String sql = "INSERT INTO Libro (nombre, isbn, edicion, anio, idioma, editorial, descripcion, portada_img, copiasMinimas, idAutor, idCategoria, estado) " +
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        try (Connection con = DatabaseConnection.getConnection();
+        try (Connection con = dataSource.getConnection();
              PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             ps.setString(1, l.getNombre());
@@ -65,7 +72,7 @@ public class LibroDAO {
     public boolean actualizar(Libro l) throws SQLException {
         String sql = "UPDATE Libro SET nombre=?, isbn=?, edicion=?, anio=?, idioma=?, editorial=?, descripcion=?, " +
                 "portada_img=?, copiasMinimas=?, idAutor=?, idCategoria=?, estado=?, updated_at=GETDATE() WHERE id=?";
-        try (Connection con = DatabaseConnection.getConnection();
+        try (Connection con = dataSource.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setString(1, l.getNombre());
@@ -88,7 +95,7 @@ public class LibroDAO {
     public Libro buscarPorId(int id) throws SQLException {
         String sql = "SELECT id, nombre, isbn, edicion, anio, idioma, editorial, descripcion, portada_img, " +
                 "copiasMinimas, idAutor, idCategoria, estado, created_at, updated_at FROM Libro WHERE id=?";
-        try (Connection con = DatabaseConnection.getConnection();
+        try (Connection con = dataSource.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, id);
             try (ResultSet rs = ps.executeQuery()) {
@@ -109,7 +116,7 @@ public class LibroDAO {
                 ORDER BY l.id DESC
                 """;
         List<LibroConAutor> data = new ArrayList<>();
-        try (Connection con = DatabaseConnection.getConnection();
+        try (Connection con = dataSource.getConnection();
              PreparedStatement ps = con.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
 
@@ -144,7 +151,7 @@ public class LibroDAO {
 
         List<LibroConAutorYCategoria> lista = new ArrayList<>();
 
-        try (Connection con = DatabaseConnection.getConnection();
+        try (Connection con = dataSource.getConnection();
              PreparedStatement ps = con.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
 
@@ -275,7 +282,7 @@ public class LibroDAO {
         sql.append(" ORDER BY l.nombre ASC");
 
         // 5. Ejecución
-        try (Connection con = DatabaseConnection.getConnection();
+        try (Connection con = dataSource.getConnection();
              PreparedStatement ps = con.prepareStatement(sql.toString())) {
 
             // Asignación de parámetros (sigue el orden de la cláusula WHERE)
@@ -325,7 +332,7 @@ public class LibroDAO {
             ORDER BY conteoPrestamos DESC;
         """; // Utilizamos TOP (?) de SQL Server
 
-        try (Connection con = DatabaseConnection.getConnection();
+        try (Connection con = dataSource.getConnection();
              PreparedStatement ps = con.prepareStatement(SQL)) {
 
             ps.setInt(1, limite);

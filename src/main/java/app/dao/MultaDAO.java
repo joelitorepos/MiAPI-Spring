@@ -1,6 +1,5 @@
 package app.dao;
 
-import app.db.DatabaseConnection;
 import app.model.Multa;
 import app.model.MultaConDetalles;
 
@@ -11,8 +10,15 @@ import java.util.Date;
 import java.util.List;
 import org.springframework.stereotype.Repository;
 
+import javax.sql.DataSource;
+
 @Repository
 public class MultaDAO {
+    private final DataSource dataSource;
+
+    public MultaDAO(DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
 
     // INSERT: crea una multa y devuelve el id generado
     public int insertar(Multa m) throws SQLException {
@@ -21,7 +27,7 @@ public class MultaDAO {
                                 estadoPago, justificacionExoneracion) 
             VALUES (?, ?, ?, ?, ?, ?)
             """;
-        try (Connection con = DatabaseConnection.getConnection();
+        try (Connection con = dataSource.getConnection();
              PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             ps.setInt(1, m.getIdPrestamo());
@@ -55,7 +61,7 @@ public class MultaDAO {
             """;
         List<Multa> lista = new ArrayList<>();
 
-        try (Connection con = DatabaseConnection.getConnection();
+        try (Connection con = dataSource.getConnection();
              PreparedStatement ps = con.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
 
@@ -74,7 +80,7 @@ public class MultaDAO {
                    created_at, updated_at 
             FROM Multa WHERE id = ?
             """;
-        try (Connection con = DatabaseConnection.getConnection();
+        try (Connection con = dataSource.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setInt(1, id);
@@ -96,7 +102,7 @@ public class MultaDAO {
                 justificacionExoneracion = ?, updated_at = GETDATE() 
             WHERE id = ?
             """;
-        try (Connection con = DatabaseConnection.getConnection();
+        try (Connection con = dataSource.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setInt(1, m.getIdPrestamo());
@@ -173,7 +179,7 @@ public class MultaDAO {
             AND fechaPago BETWEEN ? AND DATEADD(day, 1, ?);
         """; // Usamos DATEADD(day, 1, ?) en SQL Server para incluir todo el último día
 
-        try (Connection con = DatabaseConnection.getConnection();
+        try (Connection con = dataSource.getConnection();
              PreparedStatement ps = con.prepareStatement(SQL)) {
 
             // Convertir java.util.Date a java.sql.Timestamp
@@ -208,7 +214,7 @@ public class MultaDAO {
             ORDER BY m.fechaPago DESC;
         """; // Filtramos por estado 'Pagada' y fechaPago en el rango
 
-        try (Connection con = DatabaseConnection.getConnection();
+        try (Connection con = dataSource.getConnection();
              PreparedStatement ps = con.prepareStatement(SQL)) {
 
             // Convertir java.util.Date a java.sql.Timestamp

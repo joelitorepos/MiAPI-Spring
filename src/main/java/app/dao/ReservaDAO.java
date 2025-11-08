@@ -1,6 +1,5 @@
 package app.dao;
 
-import app.db.DatabaseConnection;
 import app.model.Reserva;
 
 import java.sql.*;
@@ -9,13 +8,20 @@ import java.util.ArrayList;
 import java.util.List;
 import org.springframework.stereotype.Repository;
 
+import javax.sql.DataSource;
+
 @Repository
 public class ReservaDAO {
+    private final DataSource dataSource;
+
+    public ReservaDAO(DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
 
     // INSERT: crea una reserva y devuelve el id generado
     public int insertar(Reserva r) throws SQLException {
         String sql = "INSERT INTO Reserva (idCliente, idLibro, idCopia, fecha_vencimiento, estado, posicionCola, observaciones) VALUES (?, ?, ?, ?, ?, ?, ?)";
-        try (Connection con = DatabaseConnection.getConnection();
+        try (Connection con = dataSource.getConnection();
              PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             ps.setInt(1, r.getIdCliente());
@@ -48,7 +54,7 @@ public class ReservaDAO {
         String sql = "SELECT id, idCliente, idLibro, idCopia, fecha_reserva, fecha_vencimiento, estado, posicionCola, observaciones, created_at, updated_at FROM Reserva ORDER BY id DESC";
         List<Reserva> lista = new ArrayList<>();
 
-        try (Connection con = DatabaseConnection.getConnection();
+        try (Connection con = dataSource.getConnection();
              PreparedStatement ps = con.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
 
@@ -62,7 +68,7 @@ public class ReservaDAO {
     // SELECT WHERE id = ?
     public Reserva buscarPorId(int id) throws SQLException {
         String sql = "SELECT id, idCliente, idLibro, idCopia, fecha_reserva, fecha_vencimiento, estado, posicionCola, observaciones, created_at, updated_at FROM Reserva WHERE id = ?";
-        try (Connection con = DatabaseConnection.getConnection();
+        try (Connection con = dataSource.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setInt(1, id);
@@ -79,7 +85,7 @@ public class ReservaDAO {
     // UPDATE: devuelve true si actualizó al menos 1 fila
     public boolean actualizar(Reserva r) throws SQLException {
         String sql = "UPDATE Reserva SET idCliente = ?, idLibro = ?, idCopia = ?, fecha_vencimiento = ?, estado = ?, posicionCola = ?, observaciones = ?, updated_at = GETDATE() WHERE id = ?";
-        try (Connection con = DatabaseConnection.getConnection();
+        try (Connection con = dataSource.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setInt(1, r.getIdCliente());

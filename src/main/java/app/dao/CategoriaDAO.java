@@ -9,13 +9,20 @@ import java.util.ArrayList;
 import java.util.List;
 import org.springframework.stereotype.Repository;
 
+import javax.sql.DataSource;
+
 @Repository
 public class CategoriaDAO {
+    private final DataSource dataSource;
+
+    public CategoriaDAO(DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
 
     // INSERT: crea una categoría y devuelve el id generado
     public int insertar(Categoria c) throws SQLException {
         String sql = "INSERT INTO Categoria (nombre, estado) VALUES (?, ?)";
-        try (Connection con = DatabaseConnection.getConnection();
+        try (Connection con = dataSource.getConnection();
              PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             ps.setString(1, c.getNombre());
@@ -39,7 +46,7 @@ public class CategoriaDAO {
         String sql = "SELECT id, nombre, estado, created_at, updated_at FROM Categoria ORDER BY id DESC";
         List<Categoria> lista = new ArrayList<>();
 
-        try (Connection con = DatabaseConnection.getConnection();
+        try (Connection con = dataSource.getConnection();
              PreparedStatement ps = con.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
 
@@ -53,7 +60,7 @@ public class CategoriaDAO {
     // SELECT WHERE id = ?
     public Categoria buscarPorId(int id) throws SQLException {
         String sql = "SELECT id, nombre, estado, created_at, updated_at FROM Categoria WHERE id = ?";
-        try (Connection con = DatabaseConnection.getConnection();
+        try (Connection con = dataSource.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setInt(1, id);
@@ -70,7 +77,7 @@ public class CategoriaDAO {
     // UPDATE: devuelve true si actualizó al menos 1 fila
     public boolean actualizar(Categoria c) throws SQLException {
         String sql = "UPDATE Categoria SET nombre = ?, estado = ?, updated_at = GETDATE() WHERE id = ?";
-        try (Connection con = DatabaseConnection.getConnection();
+        try (Connection con = dataSource.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setString(1, c.getNombre());

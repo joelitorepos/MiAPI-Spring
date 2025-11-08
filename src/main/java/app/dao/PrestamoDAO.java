@@ -1,6 +1,5 @@
 package app.dao;
 
-import app.db.DatabaseConnection;
 import app.model.ComboItem;
 import app.model.Prestamo;
 import app.model.PrestamoConDetalles;
@@ -11,8 +10,15 @@ import java.util.List;
 import java.util.Date;
 import org.springframework.stereotype.Repository;
 
+import javax.sql.DataSource;
+
 @Repository
 public class PrestamoDAO {
+    private final DataSource dataSource;
+
+    public PrestamoDAO(DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
 
     // INSERT: crea un prestamo y devuelve el id generado
     public int insertar(Prestamo p) throws SQLException {
@@ -21,7 +27,7 @@ public class PrestamoDAO {
                                 estado, observaciones) 
             VALUES (?, ?, ?, NOW(), ?, ?, ?)
             """;
-        try (Connection con = DatabaseConnection.getConnection();
+        try (Connection con = dataSource.getConnection();
              PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             ps.setInt(1, p.getIdCliente());
@@ -54,7 +60,7 @@ public class PrestamoDAO {
             """;
         List<Prestamo> lista = new ArrayList<>();
 
-        try (Connection con = DatabaseConnection.getConnection();
+        try (Connection con = dataSource.getConnection();
              PreparedStatement ps = con.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
 
@@ -72,7 +78,7 @@ public class PrestamoDAO {
                    fecha_devolucion, estado, observaciones, created_at, updated_at 
             FROM prestamo WHERE id = ?
             """;
-        try (Connection con = DatabaseConnection.getConnection();
+        try (Connection con = dataSource.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setInt(1, id);
@@ -94,7 +100,7 @@ public class PrestamoDAO {
                 updated_at = NOW() 
             WHERE id = ?
             """;
-        try (Connection con = DatabaseConnection.getConnection();
+        try (Connection con = dataSource.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setInt(1, p.getIdCliente());
@@ -145,7 +151,7 @@ public class PrestamoDAO {
         String sql = "SELECT id, nombre FROM cliente WHERE estado != 0 ORDER BY nombre";
         List<ComboItem> lista = new ArrayList<>();
 
-        try (Connection con = DatabaseConnection.getConnection();
+        try (Connection con = dataSource.getConnection();
              PreparedStatement ps = con.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
 
@@ -168,7 +174,7 @@ public class PrestamoDAO {
             """;
         List<ComboItem> lista = new ArrayList<>();
 
-        try (Connection con = DatabaseConnection.getConnection();
+        try (Connection con = dataSource.getConnection();
              PreparedStatement ps = con.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
 
@@ -183,7 +189,7 @@ public class PrestamoDAO {
         String sql = "SELECT id, CONCAT(nombre, ' ', apellido) AS nombreCompleto FROM usuario WHERE estado = 1 ORDER BY nombre";
         List<ComboItem> lista = new ArrayList<>();
 
-        try (Connection con = DatabaseConnection.getConnection();
+        try (Connection con = dataSource.getConnection();
              PreparedStatement ps = con.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
 
@@ -227,7 +233,7 @@ public class PrestamoDAO {
             ORDER BY p.fecha_prestamo DESC
         """; // Usamos DATEADD(day, 1, ?) en SQL Server para incluir todo el último día
 
-        try (Connection con = DatabaseConnection.getConnection();
+        try (Connection con = dataSource.getConnection();
              PreparedStatement ps = con.prepareStatement(SQL)) {
 
             // Convertir java.util.Date a java.sql.Timestamp para mejor precisión con DATETIME/TIMESTAMP

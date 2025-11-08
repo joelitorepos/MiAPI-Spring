@@ -9,8 +9,15 @@ import java.util.ArrayList;
 import java.util.List;
 import org.springframework.stereotype.Repository;
 
+import javax.sql.DataSource;
+
 @Repository
 public class AuditoriaDAO {
+    private final DataSource dataSource;
+
+    public AuditoriaDAO(DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
 
     // Helper: mapea un ResultSet a un objeto Auditoria
     private Auditoria mapAuditoria(ResultSet rs) throws SQLException {
@@ -26,7 +33,7 @@ public class AuditoriaDAO {
 
     public Auditoria buscarPorId(int id) throws SQLException {
         String sql = "SELECT id, idUsuario, fechaHora, modulo, accion, detalle FROM Auditoria WHERE id = ?";
-        try (Connection con = DatabaseConnection.getConnection();
+        try (Connection con = dataSource.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setInt(1, id);
@@ -82,7 +89,7 @@ public class AuditoriaDAO {
         sql.append(" ORDER BY fechaHora DESC");
 
 
-        try (Connection con = DatabaseConnection.getConnection();
+        try (Connection con = dataSource.getConnection();
              PreparedStatement ps = con.prepareStatement(sql.toString())) {
 
             // Asignar parámetros al PreparedStatement

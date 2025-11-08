@@ -9,14 +9,21 @@ import java.util.ArrayList;
 import java.util.List;
 import org.springframework.stereotype.Repository;
 
+import javax.sql.DataSource;
+
 @Repository
 public class InventarioMovimientoDAO {
+    private final DataSource dataSource;
+
+    public InventarioMovimientoDAO(DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
 
     // INSERT: crea un movimiento y devuelve el id generado. La fecha se genera en DB si no se provee.
     public int insertar(InventarioMovimiento m) throws SQLException {
         String sql = "INSERT INTO InventarioMovimiento (idUsuario, idCopia, idLibro, tipoMovimiento, fecha, diferencia, ubicacionAnterior, ubicacionNueva, comentarios) " +
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        try (Connection con = DatabaseConnection.getConnection();
+        try (Connection con = dataSource.getConnection();
              PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             ps.setInt(1, m.getIdUsuario());
@@ -56,7 +63,7 @@ public class InventarioMovimientoDAO {
                 "FROM InventarioMovimiento ORDER BY id DESC";
         List<InventarioMovimiento> lista = new ArrayList<>();
 
-        try (Connection con = DatabaseConnection.getConnection();
+        try (Connection con = dataSource.getConnection();
              PreparedStatement ps = con.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
 
@@ -71,7 +78,7 @@ public class InventarioMovimientoDAO {
     public InventarioMovimiento buscarPorId(int id) throws SQLException {
         String sql = "SELECT id, idUsuario, idCopia, idLibro, tipoMovimiento, fecha, diferencia, ubicacionAnterior, ubicacionNueva, comentarios, created_at, updated_at " +
                 "FROM InventarioMovimiento WHERE id = ?";
-        try (Connection con = DatabaseConnection.getConnection();
+        try (Connection con = dataSource.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setInt(1, id);

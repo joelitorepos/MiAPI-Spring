@@ -8,13 +8,21 @@ import java.util.ArrayList;
 import java.util.List;
 import org.springframework.stereotype.Repository;
 
+import javax.sql.DataSource;
+
 @Repository
 public class AutorDAO {
+    private final DataSource dataSource;
+
+    public AutorDAO(DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
+
     // INSERT: crea un autor y devuelve el id generado
     // NOTA: No se incluyen 'created_at' ni 'updated_at' porque la BD las establece con DEFAULT GETDATE().
     public int insertar(Autor a) throws SQLException {
         String sql = "INSERT INTO autor (nombre, biografia, estado) VALUES (?, ?, ?)";
-        try (Connection con = DatabaseConnection.getConnection();
+        try (Connection con = dataSource.getConnection();
              PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             ps.setString(1, a.getNombre());
@@ -40,7 +48,7 @@ public class AutorDAO {
         String sql = "SELECT id, nombre, biografia, estado, created_at, updated_at FROM autor ORDER BY id DESC";
         List<Autor> lista = new ArrayList<>();
 
-        try (Connection con = DatabaseConnection.getConnection();
+        try (Connection con = dataSource.getConnection();
              PreparedStatement ps = con.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
 
@@ -55,7 +63,7 @@ public class AutorDAO {
     // MODIFICADO: Se agregaron created_at y updated_at a la consulta SELECT.
     public Autor buscarPorId(int id) throws SQLException {
         String sql = "SELECT id, nombre, biografia, estado, created_at, updated_at FROM autor WHERE id = ?";
-        try (Connection con = DatabaseConnection.getConnection();
+        try (Connection con = dataSource.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setInt(1, id);
@@ -73,7 +81,7 @@ public class AutorDAO {
     // MODIFICADO: Se agregó 'updated_at = GETDATE()' para que la BD actualice la fecha automáticamente.
     public boolean actualizar(Autor a) throws SQLException {
         String sql = "UPDATE autor SET nombre = ?, biografia = ?, estado = ?, updated_at = GETDATE() WHERE id = ?";
-        try (Connection con = DatabaseConnection.getConnection();
+        try (Connection con = dataSource.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setString(1, a.getNombre());
